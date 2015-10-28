@@ -2,6 +2,8 @@
 
 A tiny wiki build with express.js, swig and MongoDB.
 
+![logo](https://raw.githubusercontent.com/seqs/tractor/master/public/assets/images/logo.png)
+
 ## Install
 
 ```
