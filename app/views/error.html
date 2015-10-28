@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+
+{% block title %}Error{% endblock %}
+
+{% block body %}
+<div class="panel panel-inverse">
+  <div class="panel-heading">
+    <h3 class="panel-title">Error</h3>
+  </div>
+
+  <div class="panel-body">
+    {{ message }}
+  </div>
+
+  <div class="panel-body">
+  {% if errors %}
+    <div class="alert alert-warning">
+      <ul>
+      {% for error in errors %}
+        <li><code>{{ error.resource }}.{{ error.field }}.{{ error.code }}</code></li>
+      {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

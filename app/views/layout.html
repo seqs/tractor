@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="richgirl">
+
+  <title>{% block title %}{% endblock %} - Tractor</title>
+
+  <link rel="stylesheet" href="/styles/default.css">
+  <link rel="icon" href="/favicon.ico">
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <nav class="navbar navbar-inverse navbar-static-top site-header">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">Tractor</a>
+      </div>
+
+      <div class="collapse navbar-collapse">
+        {#
+        <ul class="nav navbar-nav">
+          <li><a href="/posts" class="navbar-link">Posts</a></li>
+        </ul>
+        #}
+
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/users/signup" class="navbar-link"><small>Signup</small></a></li>
+          <li><a href="/users/login" class="navbar-link"><small>Login</small></a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid margin-top-25">
+    <div class="row">
+      <div class="col-md-12">{% block body %}{% endblock %}</div>
+    </div>
+  </div>
+
+</body>
+</html>

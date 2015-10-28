@@ -1,0 +1,19 @@
+{% extends '../layout.html' %}
+
+{% block title %}New page{% endblock %}
+
+{% block head %}{% include "./_editor.html" %}{% endblock %}
+
+{% block body %}
+<div class="panel panel-inverse">
+  <div class="panel-heading">
+    <h3 class="panel-title">New page</h3>
+  </div>
+
+  <div class="panel-body">
+    {% include "./_form.html" %}
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,51 @@
+.site-header {
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  text-shadow: 1px 1px 3px rgba( 0, 0, 0, 0.3 );
+
+  background: #1f9364;
+  background-image: -moz-linear-gradient(top, #27b176, #1f9364);
+  background-image: -ms-linear-gradient(top, #27b176, #1f9364);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#27b176), to(#1f9364));
+  background-image: -webkit-linear-gradient(top, #27b176, #1f9364);
+  background-image: -o-linear-gradient(top, #27b176, #1f9364);
+  background-image: linear-gradient(top, #27b176, #1f9364);
+}
+
+.site-header .navbar-brand {
+  font-weight: bold;
+  color: #fff;
+  font-size: 1.8em;
+  font-family: Overlock, Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+}
+
+.panel {
+  .panel-heading {
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    text-shadow: 1px 1px 2px rgba( 0, 0, 0, 0.1 );
+  }
+}
+
+.panel-inverse {
+  .panel-variant(@panel-default-border; @panel-default-text; @panel-default-heading-bg; @panel-default-border);
+
+  .panel-heading {
+    border-bottom: 0px;
+    background: #ddd;
+    background-image: -moz-linear-gradient(top, #eee, #ddd);
+    background-image: -ms-linear-gradient(top, #eee, #ddd);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#eee), to(#ddd));
+    background-image: -webkit-linear-gradient(top, #eee, #ddd);
+    background-image: -o-linear-gradient(top, #eee, #ddd);
+    background-image: linear-gradient(top, #eee, #ddd);
+  }
+}
+
+.odd {
+  background-color: #f8f8f8;
+  border-top: 1px solid #eee;
+}
+

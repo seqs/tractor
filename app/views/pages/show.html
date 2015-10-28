@@ -1,0 +1,80 @@
+{% extends '../layout.html' %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block head %}
+<script>
+function deleteConfirm(self) {
+  if (confirm('Are you sure?')) {
+    var f = document.createElement('form');
+    self.parentNode.appendChild(f);
+    f.style.display = 'none';
+    f.method = 'POST';
+    f.action = self.href;
+    f.submit();
+  };
+  return false;
+}
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="panel panel-inverse">
+  <div class="panel-heading">
+    <small class="text-muted pull-right">
+      <a href="/pages/new?parentId={{ page._id.toString() }}" class="text-muted">New</a> &middot;
+      <a href="/pages/{{ page._id.toString() }}/edit" class="text-muted">Edit</a>
+    </small>
+    <h3 class="panel-title">{{ page.title }}</h3>
+  </div>
+
+  <div class="panel-body markdown-content">
+    {% if pager.skip < 1 %}
+    {{ page.rendered|raw }}
+    {% endif %}
+  </div>
+
+  {% if children %}
+    {% for child in children %}
+    <div class="panel-body{% if loop.index % 2 %} odd{% endif %}">
+      <div class="media">
+        {#
+        <div class="media-left">
+          <a href="#">
+            <img class="media-object" src="..." alt="...">
+          </a>
+        </div>
+        #}
+        <div class="media-body">
+          <h4 class="media-heading"><a href="/pages/{{ child._id.toString() }}">{{ child.title }}</a></h4>
+          <span class="text-muted">
+            {{ child.createdAt.toString() }} &middot;
+            <a href="/pages/{{ child._id.toString() }}/edit" class="text-muted">Edit</a> &middot;
+            <a href="/pages/{{ child._id.toString() }}/delete" onclick="return deleteConfirm(this);" class="text-muted">Delete</a>
+          </span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+{% if pager.count %}
+  <nav>
+    <ul class="pager">
+      {% if pager.prev < 0 %}
+      <li class="disabled"><a href="#">Previous</a></li>
+      {% else %}
+      <li><a href="/pages?skip={{ pager.prev }}">Previous</a></li>
+      {% endif %}
+
+      {% if pager.next > pager.count %}
+      <li class="disabled"><a href="#">Next</a></li>
+      {% else %}
+      <li><a href="/pages?skip={{ pager.next }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
+
+{% endblock %}
