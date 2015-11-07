@@ -45,6 +45,51 @@ npm start
 Open your browser: http://localhost:1337/
 
 
+## Editing
+
+### To link to another Tractor wiki page, use the Tractor Page Link Tag.
+
+```
+[[Tractor Works]]
+```
+
+The above tag will create a link to the corresponding page file named `tractor-works`. The conversion uses [limax](https://github.com/lovell/limax):
+
+* Latin: e.g. English, français, Deutsch, español, português
+* Cyrillic: e.g. Русский язык, български език, українська мова
+* Chinese: e.g. 官话, 吴语 (converts to Latin script using Pinyin with optional tone number)
+* Japanese: e.g. ひらがな, カタカナ (converts to Romaji using Hepburn)
+
+If you'd like the link text to be something that doesn't map directly to the page name, you can specify the actual page name after a pipe:
+
+```
+[[How Tractor works|Tractor Works]]
+```
+
+The above tag will link to `tractor-works` using "How Tractor Works" as the link text.
+
+### Mermaid charts
+
+```
+@@@
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+@@@
+```
+
+### KaTeX math typesetting
+
+```
+^^^
+f(x) = \int_{-\infty}^\infty
+\hat f(\xi)\,e^{2 \pi i \xi x}
+\,d\xi
+^^^
+```
+
 ## Contribution and License Agreement
 
 If you contribute code to this project, you are implicitly allowing your code to be distributed under the MIT license. You are also implicitly verifying that all code is your original work.
