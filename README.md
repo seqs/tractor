@@ -55,10 +55,10 @@ Open your browser: http://localhost:1337/
 
 The above tag will create a link to the corresponding page file named `tractor-works`. The conversion uses [limax](https://github.com/lovell/limax):
 
-* Latin: e.g. English, français, Deutsch, español, português
-* Cyrillic: e.g. Русский язык, български език, українська мова
-* Chinese: e.g. 官话, 吴语 (converts to Latin script using Pinyin with optional tone number)
-* Japanese: e.g. ひらがな, カタカナ (converts to Romaji using Hepburn)
+* Latin: e.g. `i ♥ latin` to `i-love-latin`
+* Cyrillic: e.g. `Я люблю русский` to `ya-lyublyu-russkij`
+* Chinese: e.g. `我爱官话` to `wo-ai-guan-hua`
+* Japanese: e.g. `私は ひらがな が大好き` to `ha-hiragana-gaki`
 
 If you'd like the link text to be something that doesn't map directly to the page name, you can specify the actual page name after a pipe:
 
