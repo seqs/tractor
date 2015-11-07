@@ -1,0 +1,18 @@
+{% extends '../layout.html' %}
+
+{% block title %}{{ version.title }}{% endblock %}
+
+{% block body %}
+<div class="panel panel-inverse">
+  <div class="panel-heading">
+    <small class="text-muted pull-right">
+      <a href="/pages/{{page._id.toString()}}/versions" class="text-muted">Back</a>
+    </small>
+    <h3 class="panel-title">{{ version.title }} <span class="label label-warning">Revision {{ version.versionNo }}</span></h3>
+  </div>
+
+  <div class="panel-body markdown-content">
+    <pre>{{ version.content }}</pre>
+  </div>
+</div>
+{% endblock %}

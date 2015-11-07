@@ -1,0 +1,56 @@
+{% extends '../layout.html' %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block body %}
+<div class="panel panel-inverse">
+  <div class="panel-heading">
+    <small class="text-muted pull-right">
+      <a href="/pages/{{ page._id.toString() }}" class="text-muted">Back</a>
+    </small>
+    <h3 class="panel-title">{{ page.title }} <span class="label label-warning">Recently Revised</span></h3>
+  </div>
+
+  {% if versions.length %}
+    {% for version in versions %}
+    <div class="panel-body{% if loop.index % 2 %} odd{% endif %}">
+      <div class="media">
+        <div class="media-body">
+          <h4 class="media-heading">
+            <a href="/pages/{{ page._id.toString()}}/versions/{{ version._id.toString() }}">Revision {{ version.versionNo }}</a>
+          </h4>
+          <span class="text-muted">
+            {{ version.updatedAt.toString() }}
+          </span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="panel-body">
+      <div class="alert alert-warning">
+        No versions
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+{% if pager.count %}
+  <nav>
+    <ul class="pager">
+      {% if pager.prev < 0 %}
+      <li class="disabled"><a href="#">Previous</a></li>
+      {% else %}
+      <li><a href="/pages/{{ page._id.toString() }}/versions?skip={{ pager.prev }}">Previous</a></li>
+      {% endif %}
+
+      {% if pager.next > pager.count %}
+      <li class="disabled"><a href="#">Next</a></li>
+      {% else %}
+      <li><a href="/pages/{{ page._id.toString() }}/versions?skip={{ pager.next }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{
+  "name": "tractor",
+  "description": "A tiny forum",
+  "main": "server.js",
+  "authors": [
+    "seqs"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/seqs/tractor",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "mermaid": "~0.5.5",
+    "KaTeX": "katex#~0.5.1"
+  }
+}

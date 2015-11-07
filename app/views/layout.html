@@ -36,8 +36,12 @@
         #}
 
         <ul class="nav navbar-nav navbar-right">
+          {% if cookies.token %}
+          <li><a href="/users/logout" class="navbar-link"><small>Logout</small></a></li>
+          {% else %}
           <li><a href="/users/signup" class="navbar-link"><small>Signup</small></a></li>
           <li><a href="/users/login" class="navbar-link"><small>Login</small></a></li>
+          {% endif %}
         </ul>
       </div>
     </div>

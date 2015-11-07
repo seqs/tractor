@@ -2,22 +2,27 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose');
+var _ = require('lodash');
 var db = require('./db');
 
-/**
- * Page Schema
- */
-var PageSchema = new mongoose.Schema({
+var schemas = {
   title: { type: String, default: '' },
   slug: { type: String, default: '' },
   content: { type: String, default: '' },
   parentId: {type: mongoose.Schema.ObjectId},
+  userId: {type: mongoose.Schema.ObjectId},
+  versionNo: {type: Number, min: 1},
   createdAt: {type : Date, default : Date.now},
   createdIp: { type: String, default: '' },
   updatedAt: {type : Date, default : Date.now},
-});
+};
 
-PageSchema.index({ slug: 1, parentId: 1 });
+/**
+ * Page Schema
+ */
+var PageSchema = new mongoose.Schema(schemas);
+
+PageSchema.index({ slug: 1, parentId: 1, userId: 1 });
 
 PageSchema.path('title').validate(function (title) {
   return title.length;
@@ -39,18 +44,60 @@ PageSchema.path('content').validate(function (content) {
  * Pre-save hook
  */
 PageSchema.pre('save', function(next) {
-  if (!this.isNew) return next();
-
-  /*
-  if (!db.validatePresenceOf(this.password)) {
-    next(new Error('Invalid password'));
-  } else {
-    next();
+  if (this.isNew) {
+    this.versionNo = 1;
+    return next();
   }
-  */
-  next();
+
+  var version = new Version(this.previous);
+  this.versionNo = (this.versionNo || 0) + 1;
+
+  version.save(function(err) {
+    if (err) next(err);
+    next();
+  });
 });
 
+/**
+ * Pre-remove hook
+ */
+PageSchema.pre('remove', function(next) {
+  this.setPrevious();
+  var version = new Version(this.previous);
+  version.save(function(err) {
+    if (err) next(err);
+    next();
+  });
+});
+
+PageSchema.methods.setPrevious = function() {
+  this.previous = {
+    pageId: this._id,
+    title: this.title,
+    slug: this.slug,
+    content: this.content,
+    parentId: this.parentId,
+    userId: this.userId,
+    versionNo: this.versionNo,
+    createdAt: this.createdAt,
+    createdIp: this.createdIp,
+    updatedAt: this.updatedAt,
+  };
+};
+
+PageSchema.methods.versionModel = function() {
+  return Version;
+};
+
 var Page = db.model('Page', PageSchema);
+
+// Version
+var VersionSchema = new mongoose.Schema(_.extend(schemas, {
+  pageId: {type: mongoose.Schema.ObjectId}
+}));
+
+VersionSchema.index({ pageId: 1 });
+
+var Version = db.model('Version', VersionSchema);
 
 module.exports = Page;

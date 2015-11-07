@@ -28,7 +28,7 @@ router.get('/:file', function(req, res, next) {
   fs.readFile(src, function(err, data) {
     if (err) return next();
     var opts = {};
-    opts.paths = [path.join(root, path.dirname(pathname))];
+    opts.paths = [path.join(root, path.dirname(pathname)), __dirname + '/../../node_modules'];
     opts.filename = path.basename(src);
 
     less.render(new String(data), opts, function(err, output) {

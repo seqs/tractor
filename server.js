@@ -18,10 +18,16 @@ app.set('views', __dirname + '/app/views');
 app.disable('x-powered-by');
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/components', express.static(path.join(__dirname, 'bower_components')));
+app.use(function(req, res, next) {
+  res.locals.cookies = req.cookies;
+  next();
+});
 
 // Routes
 app.use('/', require('./app/routes/index'));
 app.use('/pages', require('./app/routes/pages'));
+app.use('/users', require('./app/routes/users'));
 app.use('/styles', require('./app/routes/styles'));
 
 // catch 404 and forward to error handler

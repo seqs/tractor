@@ -3,6 +3,27 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block head %}
+
+{% if page.hasMermaid %}
+  <link rel="stylesheet" href="/components/mermaid/dist/mermaid.css">
+  <script src="/components/mermaid/dist/mermaid.min.js"></script>
+{% endif %}
+
+
+{% if page.hasKatex %}
+<link rel="stylesheet" href="/components/KaTeX/dist/katex.min.css">
+<script src="/components/KaTeX/dist/katex.min.js"></script>
+<script src="/assets/scripts/doc-ready.js"></script>
+<script>
+docReady(function() {
+  var tex = document.getElementsByClassName("tex");
+  Array.prototype.forEach.call(tex, function(el) {
+    katex.render(el.getAttribute("data-expr"), el);
+  });
+});
+</script>
+{% endif %}
+
 <script>
 function deleteConfirm(self) {
   if (confirm('Are you sure?')) {
@@ -22,15 +43,22 @@ function deleteConfirm(self) {
 <div class="panel panel-inverse">
   <div class="panel-heading">
     <small class="text-muted pull-right">
+      {% if page.parentId %}
+      <a href="/pages/{{ page.parentId.toString() }}" class="text-muted">Back</a> &middot;
+      {% endif %}
+      <a href="/pages/{{ page._id.toString() }}/versions" class="text-muted">History</a>{% if cookies.token %} &middot;{% endif %}
+
+      {% if cookies.token %}
       <a href="/pages/new?parentId={{ page._id.toString() }}" class="text-muted">New</a> &middot;
       <a href="/pages/{{ page._id.toString() }}/edit" class="text-muted">Edit</a>
+      {% endif %}
     </small>
     <h3 class="panel-title">{{ page.title }}</h3>
   </div>
 
   <div class="panel-body markdown-content">
     {% if pager.skip < 1 %}
-    {{ page.rendered|raw }}
+      {{ page.rendered|raw }}
     {% endif %}
   </div>
 
@@ -46,11 +74,14 @@ function deleteConfirm(self) {
         </div>
         #}
         <div class="media-body">
-          <h4 class="media-heading"><a href="/pages/{{ child._id.toString() }}">{{ child.title }}</a></h4>
+          <h4 class="media-heading"><a href="/pages/{% if child.slug %}{{child.slug}}{% else %}{{ child._id.toString() }}{% endif %}">{{ child.title }}</a></h4>
           <span class="text-muted">
-            {{ child.createdAt.toString() }} &middot;
+            {{ child.createdAt.toString() }}
+            {% if cookies.token %}
+            &middot;
             <a href="/pages/{{ child._id.toString() }}/edit" class="text-muted">Edit</a> &middot;
             <a href="/pages/{{ child._id.toString() }}/delete" onclick="return deleteConfirm(this);" class="text-muted">Delete</a>
+            {% endif %}
           </span>
         </div>
       </div>
