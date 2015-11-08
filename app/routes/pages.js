@@ -61,7 +61,7 @@ var getPage = function(req, res, next) {
 var checkPage = function(req, res, next) {
   if (!req.page) {
     // return res.redirect('/pages/new?slug=' + (req.params.slug || "home"));
-    return res.render('error.html', {message: "Page not found."});
+    return res.render('pages/not_found.html', {slug: (req.params.slug || "home")});
   }
   next();
 };
