@@ -94,8 +94,7 @@ var checkChildren = function(req, res, next) {
 var show = function(req, res, next) {
   var md = new Markdown();
   req.page.rendered = md.render(req.page.content || "");
-  req.page.hasMermaid = md.hasMermaid;
-  req.page.hasKatex = md.hasKatex;
+  req.page.hasPlugin = md.hasPlugin;
   res.render('pages/show.html', {
     page: req.page,
     children: req.children,

@@ -71,19 +71,19 @@ The above tag will link to `tractor-works` using "How Tractor Works" as the link
 ### Mermaid charts
 
 ```
-@@@
+^^^mermaid
 graph TD;
     A-->B;
     A-->C;
     B-->D;
     C-->D;
-@@@
+^^^
 ```
 
 ### KaTeX math typesetting
 
 ```
-^^^
+^^^katex
 f(x) = \int_{-\infty}^\infty
 \hat f(\xi)\,e^{2 \pi i \xi x}
 \,d\xi

@@ -4,13 +4,13 @@
 
 {% block head %}
 
-{% if page.hasMermaid %}
+{% if page.hasPlugin.mermaid %}
   <link rel="stylesheet" href="/components/mermaid/dist/mermaid.css">
   <script src="/components/mermaid/dist/mermaid.min.js"></script>
 {% endif %}
 
 
-{% if page.hasKatex %}
+{% if page.hasPlugin.katex %}
 <link rel="stylesheet" href="/components/KaTeX/dist/katex.min.css">
 <script src="/components/KaTeX/dist/katex.min.js"></script>
 <script src="/assets/scripts/doc-ready.js"></script>

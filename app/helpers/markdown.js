@@ -23,6 +23,7 @@ function Renderer() {
   this.stashmap = {};
   this.hasMermaid = false;
   this.hasKatex = false;
+  this.hasPlugin = {};
 }
 
 Renderer.prototype.stashFencesTags = function (text) {
@@ -77,32 +78,7 @@ Renderer.prototype.extractBracketTags = function (text) {
   return text;
 }
 
-Renderer.prototype.extractMermaidTags = function (text) {
-  var self = this;
-  var matches = text.match(/^ *(@{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/gm);
-
-  if (matches) {
-    matches.forEach(function(match) {
-      match = match.trim();
-      var tag = /^ *(@{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/.exec(match);
-      if (!tag[3]) {
-        return;
-      }
-
-      // to html
-      var html = "<div class=\"mermaid\">" + tag[3] + "</div>";
-
-      var id = crypto.createHash('sha1').update(tag[0]).digest("hex");
-      self.tagmap[id] = html;
-      text = text.replace(tag[0], id);
-      self.hasMermaid = true;
-    });
-  }
-  return text;
-}
-
-
-Renderer.prototype.extractKatexTags = function (text) {
+Renderer.prototype.extractPluginTags = function(text, callback) {
   var self = this;
   var matches = text.match(/^ *(\^{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/gm);
 
@@ -110,21 +86,20 @@ Renderer.prototype.extractKatexTags = function (text) {
     matches.forEach(function(match) {
       match = match.trim();
       var tag = /^ *(\^{3,})[ \.]*(\S+)? *\n([\s\S]*?)\s*\1 *(?:\n+|$)/.exec(match);
-      if (!tag[3]) {
+      if (!tag[2]) {
         return;
       }
 
-      // to html
-      var html = "<div class=\"tex\" data-expr=\"\\displaystyle{" + tag[3].replace(/\n/g, ' ') + "}\"></div>";
-
-      var id = crypto.createHash('sha1').update(tag[0]).digest("hex");
-      self.tagmap[id] = html;
-      text = text.replace(tag[0], id);
-      self.hasKatex = true;
+      var pluginName = tag[2].trim();
+      var plugin = self.plugins[pluginName];
+      if (plugin) {
+        self.hasPlugin[pluginName] = true;
+        text = plugin(text, tag, self);
+      }
     });
   }
   return text;
-}
+};
 
 Renderer.prototype.evalTags = function (text) {
   var re;
@@ -154,11 +129,27 @@ Renderer.prototype.render = function(content) {
 
   content = this.stashFencesTags(content);
   content = this.extractBracketTags(content);
-  content = this.extractMermaidTags(content);
-  content = this.extractKatexTags(content);
+  content = this.extractPluginTags(content);
   content = this.extractStashes(content);
   content = Marked(content);
   return this.evalTags(content);
+};
+
+Renderer.prototype.plugins = {
+  katex: function(text, tag, self) {
+    var html = "<div class=\"tex\" data-expr=\"\\displaystyle{" + tag[3].replace(/\n/g, ' ') + "}\"></div>";
+    var id = crypto.createHash('sha1').update(tag[0]).digest("hex");
+    self.tagmap[id] = html;
+    text = text.replace(tag[0], id);
+    return text;
+  },
+  mermaid: function(text, tag, self) {
+    var html = "<div class=\"mermaid\">" + tag[3] + "</div>";
+    var id = crypto.createHash('sha1').update(tag[0]).digest("hex");
+    self.tagmap[id] = html;
+    text = text.replace(tag[0], id);
+    return text;
+  },
 };
 
 module.exports = Renderer;
