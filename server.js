@@ -7,7 +7,8 @@ var cookieParser = require('cookie-parser');
 var error = require('./app/helpers/error');
 
 var app = express();
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html');
