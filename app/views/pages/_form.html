@@ -1,15 +1,21 @@
 <form method="post" action="{{ action }}">
   <div class="row">
-    <div class="col-xs-9">
+    <div class="col-xs-8">
       <div class="form-group">
         <label for="input-title">Title</label>
         <input name="title" type="text" class="form-control" id="input-title" placeholder="" value="{{ page.title }}">
       </div>
     </div>
-    <div class="col-xs-3">
+    <div class="col-xs-2">
       <div class="form-group">
         <label for="input-slug">Slug</label>
         <input name="slug" type="text" class="form-control" id="input-slug" placeholder="" value="{{ page.slug }}">
+      </div>
+    </div>
+    <div class="col-xs-2">
+      <div class="form-group">
+        <label for="input-parent-id">Parent</label>
+        <input name="parentId" type="text" class="form-control" id="input-parent-id" placeholder="Parent ID or slug" value="{{ page.parentId.toString() }}">
       </div>
     </div>
   </div>
@@ -18,7 +24,6 @@
     <label for="input-content">Content</label>
     <textarea name="content" class="form-control" id="input-content" rows="20">{{ page.content }}</textarea>
   </div>
-  <input name="parentId" type="hidden" value="{{ page.parentId }}">
   <button type="submit" class="btn btn-primary">Submit</button>
   <button type="reset" class="btn btn-default">Reset</button>
 </form>

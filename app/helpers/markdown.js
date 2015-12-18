@@ -135,6 +135,10 @@ Renderer.prototype.render = function(content) {
   return this.evalTags(content);
 };
 
+Renderer.prototype.marked = function(content) {
+  return Marked(content);
+};
+
 Renderer.prototype.plugins = {
   katex: function(text, tag, self) {
     var html = "<div class=\"tex\" data-expr=\"\\displaystyle{" + tag[3].replace(/\n/g, ' ') + "}\"></div>";

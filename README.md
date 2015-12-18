@@ -29,6 +29,7 @@ Of course, there are always TODO that can be made. That's where (I hope) you com
 * TODO: Support for the HTML5 `<audio>` and `<video>` elements.
 * TODO: Support for embedding File Uploads.
 * TODO: Redis-based caching, full support for `Etag`s and Conditional `GET`s, for more efficient use of bandwidth.
+* TODO: Access Control Lists (ACL's) allow you to control the permissions of a user or a group of users. You can define permissions for the entire wiki, or for select pages of the wiki.
 
 
 ## Install

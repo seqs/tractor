@@ -2,7 +2,9 @@ var express = require('express');
 var _ = require('lodash');
 var slug = require('limax');
 var validator = require('validator');
+var moment = require('moment');
 var Page = require('../models/page');
+var CommentModel = require('../models/comment');
 var error = require('../helpers/error');
 var Markdown = require('../helpers/markdown');
 var Session = require('../helpers/session');
@@ -47,6 +49,20 @@ var versionCount = function(req, res, next) {
   });
 };
 
+var commentCount = function(req, res, next) {
+  if (!req.page) {
+    req.count = 0;
+    return next();
+  }
+
+  CommentModel.count({pageId: req.page._id}, function(err, count) {
+    if (err) return next(err);
+    req.count = count;
+    next();
+  });
+};
+
+
 var getPage = function(req, res, next) {
   var query = {};
   var slug = req.params.slug || "home";
@@ -54,6 +70,29 @@ var getPage = function(req, res, next) {
   Page.findOne(query, function(err, page) {
     if (err) return next(err);
     req.page = page;
+    next();
+  });
+};
+
+var getComment = function(req, res, next) {
+  var query = {_id: req.params.commentId};
+  CommentModel.findOne(query, function(err, comment) {
+    if (err) return next(err);
+    if (!comment) return next(error.raise('comment.commentId.notFound'));
+    req.comment = comment;
+    next();
+  });
+};
+
+var getParent = function(req, res, next) {
+  if (!req.page.parentId) {
+    return next();
+  }
+
+  var query = {_id: req.page.parentId};
+  Page.findOne(query, function(err, parent) {
+    if (err) return next(err);
+    req.parent = parent;
     next();
   });
 };
@@ -76,6 +115,7 @@ var findChildren = function(req, res, next) {
     .sort({createdAt: -1})
     .skip(req.pager.skip)
     .limit(req.pager.perPage)
+    .populate('createdBy')
     .exec(function(err, pages) {
       if (err) return next(err);
       req.children = pages;
@@ -94,10 +134,19 @@ var checkChildren = function(req, res, next) {
 var show = function(req, res, next) {
   var md = new Markdown();
   req.page.rendered = md.render(req.page.content || "");
+  if (req.comments) {
+    req.comments = _.map(req.comments, function(comment) {
+      comment.rendered = md.marked(comment.content);
+      return comment;
+    });
+  }
   req.page.hasPlugin = md.hasPlugin;
   res.render('pages/show.html', {
+    user: req.user,
     page: req.page,
+    parent: req.parent,
     children: req.children,
+    comments: req.comments,
     pager: req.pager,
   });
 };
@@ -118,6 +167,25 @@ var findVersions = function(req, res, next) {
       next();
     });
 };
+
+var findComments = function(req, res, next) {
+  if (!req.page) {
+    req.comments = null;
+    return next();
+  }
+
+  CommentModel.find({pageId: req.page._id})
+    .sort({createdAt: 1})
+    .skip(req.pager.skip)
+    .limit(req.pager.perPage)
+    .populate('createdBy')
+    .exec(function(err, comments) {
+      if (err) return next(err);
+      req.comments = comments;
+      next();
+    });
+};
+
 
 var getVersion = function(req, res, next) {
   var query = {_id: req.params.versionId, pageId: req.params.pageId};
@@ -141,60 +209,105 @@ router.get('/new', Session.authorize, function(req, res, next) {
   });
 });
 
-router.get('/', getPage, checkPage, childrenCount, getPager, findChildren, show);
-router.get('/:slug', getPage, checkPage, childrenCount, getPager, findChildren, show);
+router.get('/',
+  Session.getCurrentUser,
+  getPage,
+  checkPage,
+  childrenCount,
+  getPager,
+  findChildren,
+  show
+);
 
-router.post('/', Session.authorize, function(req, res, next) {
-  var data = {
-    title: _.trim(req.body.title),
-    content: req.body.content,
-    userId: req.user.id,
-    createdAt: new Date(),
-    createdIp: req.ip,
-  };
+router.get('/:slug',
+  Session.getCurrentUser,
+  getPage,
+  checkPage,
+  getParent,
+  childrenCount,
+  getPager,
+  findChildren,
+  findComments,
+  show
+);
 
-  if (req.body.slug) {
-    data.slug = slug(req.body.slug, {tone: false});
+// if parentId was not mongoid, find by slug and reset with actual parentId
+var processParentId = function(req, res, next) {
+  if (req.body.parentId && !validator.isMongoId(req.body.parentId)) {
+    var query = {slug: slug(req.body.parentId, {tone: false})};
+    Page.findOne(query, function(err, parent) {
+      if (err) return next(err);
+      req.body.parentId = parent._id.toString();
+      next();
+    });
+  } else {
+    next();
   }
+};
 
-  if (req.body.parentId && validator.isMongoId(req.body.parentId)) {
-    data.parentId = req.body.parentId;
+router.post('/',
+  Session.authorize,
+  processParentId,
+  function(req, res, next) {
+    var data = {
+      title: _.trim(req.body.title || moment().format('MMMM Do YYYY, h:mm:ss a')),
+      content: req.body.content,
+      userId: req.user.id,
+      createdAt: new Date(),
+      createdIp: req.ip,
+    };
+
+    if (req.body.slug) {
+      data.slug = slug(req.body.slug, {tone: false});
+    }
+
+    if (req.body.parentId && validator.isMongoId(req.body.parentId)) {
+      data.parentId = req.body.parentId;
+    }
+
+    var page = new Page(data);
+    page.save(function(err) {
+      if (err) return next(err);
+      res.redirect('/pages/' + page._id.toString());
+    });
   }
+);
 
-  var page = new Page(data);
-  page.save(function(err) {
-    if (err) return next(err);
-    res.redirect('/pages/' + page._id.toString());
-  });
-});
-
-router.get('/:slug/edit', Session.authorize, getPage, checkPage, function(req, res, next) {
+router.get('/:slug/edit', Session.authorize, getPage, getParent, checkPage, function(req, res, next) {
   res.render('pages/edit.html', {
     action: "/pages/" + req.params.slug + "/edit",
-    page: req.page
+    page: req.page,
+    parent: req.parent
   });
 });
 
-router.post('/:slug/edit', Session.authorize, getPage, checkPage, function(req, res, next) {
-  req.page.setPrevious();
-  req.page.title = _.trim(req.body.title);
-  req.page.content = req.body.content;
-  req.page.userId = req.user.id;
-  req.page.updatedAt = new Date();
+router.post('/:slug/edit',
+  Session.authorize,
+  getPage,
+  checkPage,
+  processParentId,
+  function(req, res, next) {
+    req.page.setPrevious();
+    req.page.title = _.trim(req.body.title);
+    req.page.content = req.body.content;
+    req.page.createdBy = req.page.createdBy;
+    req.page.updatedBy = req.user.id;
+    req.page.updatedAt = new Date();
 
-  if (req.body.slug) {
-    req.page.slug = slug(req.body.slug, {tone: false});
+    if (req.body.slug) {
+      req.page.slug = slug(req.body.slug, {tone: false});
+    }
+
+    if (req.body.parentId && validator.isMongoId(req.body.parentId)) {
+      req.page.parentId = req.body.parentId;
+    }
+
+    req.page.save(function(err) {
+      if (err) return next(err);
+      res.redirect('/pages/' + req.page._id);
+    });
   }
-
-  if (req.body.parentId && validator.isMongoId(req.body.parentId)) {
-    req.page.parentId = req.body.parentId;
-  }
-
-  req.page.save(function(err) {
-    if (err) return next(err);
-    res.redirect('/pages/' + req.page._id);
-  });
-});
+);
 
 router.post('/:id/delete', Session.authorize, getPage, checkPage, checkChildren, function(req, res, next) {
   req.page.remove(function(err) {
@@ -219,5 +332,92 @@ router.get('/:pageId/versions/:versionId', Session.authorize, getPage, checkPage
     version: req.version
   });
 });
+
+
+
+router.get('/:slug/comments',
+  Session.getCurrentUser,
+  getPage,
+  checkPage,
+  commentCount,
+  getPager,
+  findComments,
+  function(req, res, next) {
+    res.render('comments/index.html', {
+      user: req.user,
+      page: req.page,
+      comments: req.comments
+    });
+  }
+);
+
+router.post('/:slug/comments',
+  Session.authorize,
+  getPage,
+  checkPage,
+  function(req, res, next) {
+    var data = {
+      pageId: req.page._id.toString(),
+      content: req.body.content,
+      createdBy: req.user.id,
+      createdAt: new Date(),
+    };
+
+    var comment = new CommentModel(data);
+    comment.save(function(err) {
+      if (err) return next(err);
+      res.redirect('/pages/' + req.page._id.toString());
+    });
+  }
+);
+
+var checkCommentPermission = function(req, res, next) {
+  if (req.user._id.toString() !== req.comment.createdBy.toString()) {
+    return next(error.raise('comment.createdBy.invalid'));
+  } else {
+    next();
+  }
+};
+
+router.get('/comments/:commentId/edit',
+  Session.authorize,
+  getComment,
+  checkCommentPermission,
+  function(req, res, next) {
+    res.render('comments/edit.html', {
+      action: "/pages/comments/" + req.params.commentId + "/edit",
+      comment: req.comment,
+    });
+  }
+);
+
+router.post('/comments/:commentId/edit',
+  Session.authorize,
+  getComment,
+  checkCommentPermission,
+  function(req, res, next) {
+    req.comment.createdBy = req.user.id;
+    req.comment.content = req.body.content;
+    req.comment.updatedAt = new Date();
+
+    req.comment.save(function(err) {
+      if (err) return next(err);
+      res.redirect('/pages/' + req.comment.pageId);
+    });
+  }
+);
+
+router.post('/comments/:commentId/delete',
+  Session.authorize,
+  getComment,
+  checkCommentPermission,
+  function(req, res, next) {
+    var pageId = req.comment.pageId;
+    req.comment.remove(function(err) {
+      if (err) return next(err);
+      res.redirect('/pages/' + pageId);
+    });
+  }
+);
 
 module.exports = router;

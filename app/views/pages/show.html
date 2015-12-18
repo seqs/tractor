@@ -39,48 +39,58 @@ function deleteConfirm(self) {
 </script>
 {% endblock %}
 
+
 {% block body %}
+
+{% if page.parentId %}
+<ol class="breadcrumb">
+  {% if parent %}
+    {% if parent.slug != 'home' %}
+      <li><a href="/pages/{{ parent.parentId.toString() }}">...</a></li>
+    {% endif %}
+    <li><a href="/pages/{{ parent.linkName() }}">{{ parent.title }}</a></li>
+  {% endif %}
+  <li class="active">{{ page.title }}</li>
+</ol>
+{% endif %}
+
 <div class="panel panel-inverse">
   <div class="panel-heading">
     <small class="text-muted pull-right">
-      {% if page.parentId %}
-      <a href="/pages/{{ page.parentId.toString() }}" class="text-muted">Back</a> &middot;
-      {% endif %}
-      <a href="/pages/{{ page._id.toString() }}/versions" class="text-muted">History</a>{% if cookies.token %} &middot;{% endif %}
+      <a href="/pages/{{ page.id }}/versions" class="label label-warning">History</a>
 
-      {% if cookies.token %}
-      <a href="/pages/new?parentId={{ page._id.toString() }}" class="text-muted">New</a> &middot;
-      <a href="/pages/{{ page._id.toString() }}/edit" class="text-muted">Edit</a>
+      {% if user and (user.id == page.createdBy) %}
+      <a href="/pages/new?parentId={{ page.linkName() }}" class="label label-success">New</a>
+      <a href="/pages/{{ page.id }}/edit" class="label label-info">Edit</a>
       {% endif %}
+
     </small>
     <h3 class="panel-title">{{ page.title }}</h3>
   </div>
 
+  {% if pager.skip < 1 %}
   <div class="panel-body markdown-content">
-    {% if pager.skip < 1 %}
-      {{ page.rendered|raw }}
-    {% endif %}
+    {{ page.rendered|raw }}
   </div>
+  {% endif %}
 
   {% if children %}
     {% for child in children %}
     <div class="panel-body{% if loop.index % 2 %} odd{% endif %}">
       <div class="media">
-        {#
         <div class="media-left">
           <a href="#">
-            <img class="media-object" src="..." alt="...">
+            <img class="media-object" src="/assets/images/default-avatar.svg" alt="..." width="48" height="48">
           </a>
         </div>
-        #}
         <div class="media-body">
-          <h4 class="media-heading"><a href="/pages/{% if child.slug %}{{child.slug}}{% else %}{{ child._id.toString() }}{% endif %}">{{ child.title }}</a></h4>
+          <h4 class="media-heading"><a href="/pages/{{ child.linkName() }}">{{ child.title }}</a></h4>
           <span class="text-muted">
-            {{ child.createdAt.toString() }}
-            {% if cookies.token %}
+            <a href="" class="text-muted"><strong>{{ child.createdBy.displayName() }}</strong></a> created {{ child.fromNow() }}
+            {% if user and (user.id == child.createdBy.id) %}
             &middot;
-            <a href="/pages/{{ child._id.toString() }}/edit" class="text-muted">Edit</a> &middot;
-            <a href="/pages/{{ child._id.toString() }}/delete" onclick="return deleteConfirm(this);" class="text-muted">Delete</a>
+            <a href="/pages/{{ child.id }}/edit" class="text-muted">Edit</a> &middot;
+            <a href="/pages/{{ child.id }}/delete" onclick="return deleteConfirm(this);" class="text-muted">Delete</a>
             {% endif %}
           </span>
         </div>
@@ -90,22 +100,69 @@ function deleteConfirm(self) {
   {% endif %}
 </div>
 
-{% if pager.count %}
+{% if pager.count > pager.perPage %}
   <nav>
     <ul class="pager">
       {% if pager.prev < 0 %}
       <li class="disabled"><a href="#">Previous</a></li>
       {% else %}
-      <li><a href="/pages?skip={{ pager.prev }}">Previous</a></li>
+      <li><a href="/pages/{{ page.linkName() }}?skip={{ pager.prev }}">Previous</a></li>
       {% endif %}
 
       {% if pager.next > pager.count %}
       <li class="disabled"><a href="#">Next</a></li>
       {% else %}
-      <li><a href="/pages?skip={{ pager.next }}">Next</a></li>
+      <li><a href="/pages/{{ page.linkName() }}?skip={{ pager.next }}">Next</a></li>
       {% endif %}
     </ul>
   </nav>
+{% endif %}
+
+
+{% if page.parentId %}
+<div class="panel panel-inverse">
+  <div class="panel-heading">
+    <h3 class="panel-title">Comments</h3>
+  </div>
+
+  {% if comments.length %}
+    {% for comment in comments %}
+    <div class="panel-body{% if loop.index % 2 %} odd{% endif %}">
+      <div class="media">
+        <div class="media-left">
+          <a href="#">
+            <img class="media-object" src="/assets/images/default-avatar.svg" alt="..." width="48" height="48">
+          </a>
+        </div>
+        <div class="media-body">
+          <div class="media-heading">
+            <div class="text-muted">
+              <a href="" class="text-muted"><strong>{{ comment.createdBy.displayName() }}</strong></a> created {{ comment.fromNow() }}
+              {% if user and (user.id == comment.createdBy.id) %}
+              &middot;
+              <a href="/pages/comments/{{ comment.id }}/edit" class="text-muted">Edit</a> &middot;
+              <a href="/pages/comments/{{ comment.id }}/delete" onclick="return deleteConfirm(this);" class="text-muted">Delete</a>
+              {% endif %}
+            </div>
+          </div>
+          <div class="markdown-content">
+            {{ comment.rendered|raw }}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="panel-body odd">
+    <form method="post" action="/pages/{{ page.id }}/comments">
+      <div class="form-group">
+        <textarea name="content" class="form-control" id="input-content" rows="10"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+</div>
 {% endif %}
 
 {% endblock %}

@@ -98,6 +98,10 @@ UserSchema.methods.encryptPassword = function (password) {
   }
 };
 
+UserSchema.methods.displayName = function () {
+  return this.username || this.email.match(/^([^@]*)@/)[1] || "unknown";
+};
+
 var User = db.model('User', UserSchema);
 
 module.exports = User;
