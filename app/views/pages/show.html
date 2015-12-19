@@ -78,11 +78,13 @@ function deleteConfirm(self) {
     {% for child in children %}
     <div class="panel-body{% if loop.index % 2 %} odd{% endif %}">
       <div class="media">
+        {#
         <div class="media-left">
           <a href="#">
             <img class="media-object" src="/assets/images/default-avatar.svg" alt="..." width="48" height="48">
           </a>
         </div>
+        #}
         <div class="media-body">
           <h4 class="media-heading"><a href="/pages/{{ child.linkName() }}">{{ child.title }}</a></h4>
           <span class="text-muted">
@@ -129,11 +131,13 @@ function deleteConfirm(self) {
     {% for comment in comments %}
     <div class="panel-body{% if loop.index % 2 %} odd{% endif %}">
       <div class="media">
+        {#
         <div class="media-left">
           <a href="#">
             <img class="media-object" src="/assets/images/default-avatar.svg" alt="..." width="48" height="48">
           </a>
         </div>
+        #}
         <div class="media-body">
           <div class="media-heading">
             <div class="text-muted">
