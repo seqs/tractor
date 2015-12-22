@@ -210,7 +210,6 @@ router.get('/new', Session.authorize, function(req, res, next) {
 });
 
 router.get('/',
-  Session.getCurrentUser,
   getPage,
   checkPage,
   childrenCount,
@@ -220,7 +219,6 @@ router.get('/',
 );
 
 router.get('/:slug',
-  Session.getCurrentUser,
   getPage,
   checkPage,
   getParent,
@@ -252,7 +250,7 @@ router.post('/',
     var data = {
       title: _.trim(req.body.title || moment().format('MMMM Do YYYY, h:mm:ss a')),
       content: req.body.content,
-      userId: req.user.id,
+      createdBy: req.user.id,
       createdAt: new Date(),
       createdIp: req.ip,
     };
@@ -336,7 +334,6 @@ router.get('/:pageId/versions/:versionId', Session.authorize, getPage, checkPage
 
 
 router.get('/:slug/comments',
-  Session.getCurrentUser,
   getPage,
   checkPage,
   commentCount,

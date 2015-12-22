@@ -4,6 +4,14 @@ var error = require('./error');
 var Session = {};
 
 Session.authorize = function(req, res, next) {
+  if (!req.cookies.token) {
+    return next();
+  }
+
+  if (req.user) {
+    return next();
+  }
+
   Token.findOne({accessToken: req.cookies.token}).populate('user').exec(function (err, token) {
     if (err) return next(err);
 
@@ -28,6 +36,10 @@ Session.authorize = function(req, res, next) {
 
 Session.getCurrentUser = function(req, res, next) {
   if (!req.cookies.token) {
+    return next();
+  }
+
+  if (req.user) {
     return next();
   }
 

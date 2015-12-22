@@ -5,6 +5,7 @@ var config = require('./config');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var error = require('./app/helpers/error');
+var session = require('./app/helpers/session');
 
 var app = express();
 app.use(bodyParser.json({limit: '50mb'}));
@@ -20,8 +21,10 @@ app.disable('x-powered-by');
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/components', express.static(path.join(__dirname, 'bower_components')));
+app.use(session.getCurrentUser);
 app.use(function(req, res, next) {
   res.locals.cookies = req.cookies;
+  res.locals.currentUser = req.user;
   next();
 });
 
