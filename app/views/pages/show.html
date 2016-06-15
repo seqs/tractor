@@ -57,13 +57,13 @@ function deleteConfirm(self) {
 <div class="panel panel-inverse">
   <div class="panel-heading">
     <small class="text-muted pull-right">
-      <a href="/pages/{{ page.id }}/versions" class="label label-warning">History</a>
 
       {% if user and (user.id == page.createdBy) %}
       <a href="/pages/new?parentId={{ page.linkName() }}" class="label label-success">New</a>
       <a href="/pages/{{ page.id }}/edit" class="label label-info">Edit</a>
       {% endif %}
 
+      <a href="/pages/{{ page.id }}/versions" class="label label-warning">History</a>
     </small>
     <h3 class="panel-title">{{ page.title }}</h3>
   </div>
@@ -92,6 +92,7 @@ function deleteConfirm(self) {
             {% if user and (user.id == child.createdBy.id) %}
             &middot;
             <a href="/pages/{{ child.id }}/edit" class="text-muted">Edit</a> &middot;
+            <a href="/pages/new?cloneId={{ child.id }}&parentId={{ page.linkName() }}" class="text-muted">Clone</a> &middot;
             <a href="/pages/{{ child.id }}/delete" onclick="return deleteConfirm(this);" class="text-muted">Delete</a>
             {% endif %}
           </span>
@@ -120,7 +121,69 @@ function deleteConfirm(self) {
   </nav>
 {% endif %}
 
+{# Attachments ============================================================== #}
+{#
+{% if page.parentId %}
+<div class="panel panel-inverse">
+  <div class="panel-heading">
+    <h3 class="panel-title">Attachments</h3>
+  </div>
 
+  {% if comments.length %}
+    {% for comment in comments %}
+    <div class="panel-body{% if loop.index % 2 %} odd{% endif %}">
+
+      <div class="row">
+
+        <div class="col-sm-6 col-md-4">
+          <div class="thumbnail">
+            <img src="{{data}}" alt="..." style="height: 300px; width: 100%; display: block;">
+            <div class="caption">
+              <h4>Thumbnail label</h4>
+              <p>...</p>
+            </div>
+          </div>
+        </div><!-- /.col -->
+
+        <div class="col-sm-6 col-md-4">
+          <div class="thumbnail">
+            <img src="{{data}}" alt="..." style="height: 300px; width: 100%; display: block;">
+            <div class="caption">
+              <h4>Thumbnail label</h4>
+              <p>...</p>
+            </div>
+          </div>
+        </div><!-- /.col -->
+
+        <div class="col-sm-6 col-md-4">
+          <div class="thumbnail">
+            <img src="{{data}}" alt="..." style="height: 300px; width: 100%; display: block;">
+            <div class="caption">
+              <h4>Thumbnail label</h4>
+              <p>...</p>
+            </div>
+          </div>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="panel-body odd">
+    <form method="post" action="/pages/{{ page.id }}/comments">
+      <div class="form-group">
+        <textarea name="content" class="form-control" id="input-content" rows="10"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+#}
+
+
+{# Comments ================================================================= #}
 {% if page.parentId %}
 <div class="panel panel-inverse">
   <div class="panel-heading">

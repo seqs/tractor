@@ -97,6 +97,20 @@ var getParent = function(req, res, next) {
   });
 };
 
+var getClonePage = function(req, res, next) {
+  if (!req.query.cloneId) {
+    return next();
+  }
+
+  var query = {_id: req.query.cloneId};
+  Page.findOne(query, function(err, clonePage) {
+    if (err) return next(err);
+    req.clonePage = clonePage;
+    next();
+  });
+};
+
+
 var checkPage = function(req, res, next) {
   if (!req.page) {
     // return res.redirect('/pages/new?slug=' + (req.params.slug || "home"));
@@ -148,6 +162,7 @@ var show = function(req, res, next) {
     children: req.children,
     comments: req.comments,
     pager: req.pager,
+    data: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMjQyIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDI0MiAyMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPjwhLS0KU291cmNlIFVSTDogaG9sZGVyLmpzLzEwMCV4MjAwCkNyZWF0ZWQgd2l0aCBIb2xkZXIuanMgMi42LjAuCkxlYXJuIG1vcmUgYXQgaHR0cDovL2hvbGRlcmpzLmNvbQooYykgMjAxMi0yMDE1IEl2YW4gTWFsb3BpbnNreSAtIGh0dHA6Ly9pbXNreS5jbwotLT48ZGVmcz48c3R5bGUgdHlwZT0idGV4dC9jc3MiPjwhW0NEQVRBWyNob2xkZXJfMTUxZDcwOTEyNWUgdGV4dCB7IGZpbGw6I0FBQUFBQTtmb250LXdlaWdodDpib2xkO2ZvbnQtZmFtaWx5OkFyaWFsLCBIZWx2ZXRpY2EsIE9wZW4gU2Fucywgc2Fucy1zZXJpZiwgbW9ub3NwYWNlO2ZvbnQtc2l6ZToxMnB0IH0gXV0+PC9zdHlsZT48L2RlZnM+PGcgaWQ9ImhvbGRlcl8xNTFkNzA5MTI1ZSI+PHJlY3Qgd2lkdGg9IjI0MiIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFRUVFRUUiLz48Zz48dGV4dCB4PSI4OS44NTkzNzUiIHk9IjEwNS40Ij4yNDJ4MjAwPC90ZXh0PjwvZz48L2c+PC9zdmc+",
   });
 };
 
@@ -188,7 +203,7 @@ var findComments = function(req, res, next) {
 
 
 var getVersion = function(req, res, next) {
-  var query = {_id: req.params.versionId, pageId: req.params.pageId};
+  var query = {_id: req.params.versionId};
   req.page.versionModel().findOne(query, function(err, version) {
     if (err) return next(err);
     req.version = version;
@@ -197,13 +212,13 @@ var getVersion = function(req, res, next) {
 };
 
 
-router.get('/new', Session.authorize, function(req, res, next) {
+router.get('/new', Session.authorize, getClonePage, function(req, res, next) {
   res.render('pages/new.html', {
     action: "/pages",
     page: {
-      title: _.startCase(req.query.slug),
+      title: _.startCase(req.query.slug) || (req.clonePage && req.clonePage.title) || "",
       slug: slug(req.query.slug || "", {tone: false}),
-      content: "",
+      content: (req.clonePage && req.clonePage.content) || "",
       parentId: req.query.parentId
     }
   });
@@ -314,14 +329,14 @@ router.post('/:id/delete', Session.authorize, getPage, checkPage, checkChildren,
   });
 });
 
-router.get('/:pageId/versions', Session.authorize, getPage, checkPage, versionCount, getPager, findVersions, function(req, res, next) {
+router.get('/:slug/versions', Session.authorize, getPage, checkPage, versionCount, getPager, findVersions, function(req, res, next) {
   res.render('versions/index.html', {
     page: req.page,
     versions: req.versions
   });
 });
 
-router.get('/:pageId/versions/:versionId', Session.authorize, getPage, checkPage, getVersion, function(req, res, next) {
+router.get('/:slug/versions/:versionId', Session.authorize, getPage, checkPage, getVersion, function(req, res, next) {
   if (!req.version) {
     return res.render('error.html', {message: "Version not found."});
   }
