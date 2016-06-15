@@ -1,0 +1,27 @@
+{% extends '../layout.html' %}
+
+{% block title %}Edit comment{% endblock %}
+
+{% block head %}{% include "../pages/_editor.html" %}{% endblock %}
+
+{% block body %}
+<div class="panel panel-inverse">
+  <div class="panel-heading">
+    <small class="text-muted pull-right">
+      <a href="/pages/{{ comment.pageId.toString() }}" class="label label-warning">Back</a>
+    </small>
+    <h3 class="panel-title">Edit comment</h3>
+  </div>
+
+  <div class="panel-body">
+    <form method="post" action="{{ action }}">
+      <div class="form-group">
+        <textarea name="content" class="form-control" id="input-content" rows="20">{{ comment.content }}</textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+      or <a href="/pages/{{ comment.pageId.toString() }}">Back page</a>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

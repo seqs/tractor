@@ -1,0 +1,19 @@
+{% extends '../layout.html' %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block body %}
+<div class="panel panel-inverse">
+  <div class="panel-heading">
+    <small class="text-muted pull-right">
+      <a href="/pages/{{ page.linkName() }}" class="label label-warning">Back</a>
+    </small>
+    <h3 class="panel-title">{{ page.title }} <span class="label label-default">comments</span></h3>
+  </div>
+
+  {% include './_list.html' %}
+</div>
+
+  {% include './_pager.html' %}
+
+{% endblock %}

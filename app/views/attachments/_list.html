@@ -1,0 +1,28 @@
+
+  {% if comments.length %}
+    {% for comment in comments %}
+    <div class="panel-body{% if loop.index % 2 %} odd{% endif %}">
+      <div class="media">
+        <div class="media-left">
+          <a href="#">
+            <img class="media-object" src="/assets/images/default-avatar.svg" alt="..." width="48" height="48">
+          </a>
+        </div>
+        <div class="media-body">
+          <h4 class="media-heading">
+            <a href="" class="text-muted"><strong>{{ comment.createdBy.displayName() }}</strong></a> created {{ comment.fromNow() }}
+          </h4>
+          <div class="text-muted">
+            {{ comment.content }}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="panel-body">
+      <div class="alert alert-warning">
+        No comments
+      </div>
+    </div>
+  {% endif %}
