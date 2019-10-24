@@ -20,10 +20,10 @@
     "highlight.js": "^8.9.1",
     "less": "^2.5.3",
     "limax": "^1.1.4",
-    "lodash": "^3.10.1",
-    "marked": "^0.3.5",
+    "lodash": "^4.17.15",
+    "marked": "^0.7.0",
     "moment": "^2.10.6",
-    "mongoose": "^4.2.3",
+    "mongoose": "^5.7.6",
     "nodemon": "^1.7.3",
     "swig": "^1.4.2",
     "validator": "^4.2.1"
